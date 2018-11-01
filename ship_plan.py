@@ -34,17 +34,17 @@ class Ship_plan():
 		# 担当する風車の点検が終わったら
 		if not self.windfarm_state.all_windfarm[this_ship_target_windfarm].need_inspection:
 			next_windfarm = self.select_next_windfarm()
-			self.ship.target_windfarm = next_windfarm
+			ship.target_windfarm = next_windfarm
 
 		# 担当する風車の点検がまだ終わっていない
 		else:
 			# まだ元の風車の点検が終わっていない
 			# 夜かどうか
 			if self.check_night(t):
-				self.all_ships[ship_num].stay_harbor = True
+				ship.stay_harbor = True
 			# 昼
 			else:
-				self.all_ships[ship_num].stay_harbor = False
+				ship.stay_harbor = False
 
 	def select_next_windfarm(self):
 		# 点検が必要な風車があればそちらに回る.
@@ -52,9 +52,9 @@ class Ship_plan():
 		#if sum(self.windfarm.check_need_inspection_all()) >= 1:
 			#tmp = 
 		tmp = np.argmax(self.windfarm_state.time_from_last_inspection_all())
-        
-		self.windfarm_state.all_windfarm[tmp].there_is_ship = True
-		self.windfarm_state.all_windfarm[tmp].time_from_last_inspection = 0
+		next_windfarm = self.windfarm_state.all_windfarm[tmp]
+		next_windfarm.there_is_ship = True
+		next_windfarm.time_from_last_inspection = 0
 		return tmp
 
 	# environment.day = 1ならば昼, 0ならば夜
