@@ -14,6 +14,8 @@ class Ship_plan():
 
 	def time_step(self, t):
 		for ship in self.all_ships:
+            
+			# 次のwindfarmに出動させる # TODO この関数名内容と合ってない。next action的な内容だと思う。
 			self.ship_should_leave_current_windfarm(ship, t)
 		self.calc_driving_cost()
 
@@ -30,32 +32,67 @@ class Ship_plan():
 									self.driving_cost_per_three_hour
 
 	def ship_should_leave_current_windfarm(self, ship, t):
-		this_ship_target_windfarm = ship.target_windfarm
 		# 担当する風車の点検が終わったら
-		if not self.windfarm_state.all_windfarm[this_ship_target_windfarm].need_inspection:
-			next_windfarm = self.select_next_windfarm()
+		# TODO 修理が終わったら
+		# TODO 点検中に故障してた場合
+		if ship.task == None or (ship.task=='inspection' and not self.windfarm_state.all_windfarm[ship.target_windfarm].need_inspection) or (ship.task=='repair' and not self.windfarm_state.all_windfarm[ship.target_windfarm].need_repair):
+			next_windfarm, task = self.select_next_windfarm()
 			ship.target_windfarm = next_windfarm
+			ship.task = task
 
 		# 担当する風車の点検がまだ終わっていない
-		else:
+# 		else: # TODO elseじゃなくね？
+			# TODO next_windfarmが決まった後の昼夜判定
+			# TODO 午前3時の時点で出航してほしい。
 			# まだ元の風車の点検が終わっていない
 			# 夜かどうか
-			if self.check_night(t):
-				ship.stay_harbor = True
-			# 昼
-			else:
-				ship.stay_harbor = False
+		if not ship.task == None:
+			ship.stay_harbor = self.check_night(t)
+		else:
+			ship.stay_harbor = True
 
 	def select_next_windfarm(self):
 		# 点検が必要な風車があればそちらに回る.
+		# return windfarm_id, task=='inspection', 'repair', None
 
-		#if sum(self.windfarm.check_need_inspection_all()) >= 1:
-			#tmp = 
-		tmp = np.argmax(self.windfarm_state.time_from_last_inspection_all())
-		next_windfarm = self.windfarm_state.all_windfarm[tmp]
-		next_windfarm.there_is_ship = True
-		next_windfarm.time_from_last_inspection = 0
-		return tmp
+		# TODO
+		# 何かしらの方法で次のwfを決定する
+		# ここでは、need_hoge にかかわらず, すべての船を点検にまわしている。
+		# time_from_last_inspectionをもとに点検するwfを決定し、
+		# 選ばれた風車は強制的に need_inspection を Trueだったことにする。
+
+# 		戦略1: すべての船が常に点検をする。
+# 		tmp = np.argmax(self.windfarm_state.time_from_last_inspection_all())
+# 		next_windfarm = self.windfarm_state.all_windfarm[tmp]
+# 		next_windfarm.there_is_ship = True
+# 		next_windfarm.time_from_last_inspection = 0
+# 		next_windfarm.need_inspection = True # 強制的にneed_inspectionだったことにする
+# 		task = 'inspection'
+# 		return tmp, task
+
+		# 戦略2: 戦略1をベースに、
+		# 壊れた発電機があるときにはp=1の確率で修理に向かうが
+		# その他は常に点検に当てる。
+		# 論理積を使うため、numpy形式にしている
+		# TODO 同じ発電機に向かってはいないか確認
+		need_repair_all = np.array(self.windfarm_state.check_need_repair_all())
+		there_is_ship_all = np.array(self.windfarm_state.check_there_is_ship_all())
+		time_from_last_inspection_all = np.array(self.windfarm_state.check_time_from_last_inspection_all())
+		if sum(need_repair_all & ~there_is_ship_all) < 1:
+			# 船がいるところは time_from_last_inspection を0として扱う
+			tmp = np.argmax(time_from_last_inspection_all * ~there_is_ship_all) # ~で¬の意
+			next_windfarm = self.windfarm_state.all_windfarm[tmp]
+			next_windfarm.there_is_ship = True
+			next_windfarm.need_inspection = True # 強制的にneed_inspectionだったことにする
+			task = 'inspection'
+		else:
+			tmp = np.argmax(need_repair_all & ~there_is_ship_all) # ~で¬の意
+			next_windfarm = self.windfarm_state.all_windfarm[tmp]
+			next_windfarm.there_is_ship = True
+			task = 'repair'
+			print("repair, windfarm.k=={}".format(tmp))
+
+		return tmp, task
 
 	# environment.day = 1ならば昼, 0ならば夜
 	# 夜ならばTrueが返る.
