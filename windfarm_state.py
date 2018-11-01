@@ -9,20 +9,7 @@ class Windfarm_state():
 		self.environment = environment
 		self.all_windfarm = [Windfarm(k, environment.wind_hist) \
 							for k in range(total_windfarm_num)]
-
-		self.need_inspection_all = self.check_need_inspection_all()
-		self.need_repair_all = self.check_need_repair_all()
-		self.progress_repair_time_all = self.check_progress_repair_all()
-		self.progress_inspection_time_all = \
-			self.check_progress_inspection_all()
-		self.time_from_last_inspection_all_ = \
-			self.time_from_last_inspection_all()
-		self.there_is_ship_all = \
-			self.check_where_is_ships()
-
-		self.total_generated_power = self.total_calc_generated_kwh()
-
-
+        
 	def check_need_inspection_all(self):
 		return [wf.return_check_present_situation('inspection')[0] \
 				for wf in self.all_windfarm]
@@ -64,6 +51,9 @@ class Windfarm_state():
 	def time_step(self, t, windfarm):
 		self.all_windfarm = windfarm
 		for wd in self.all_windfarm:
+#             if need_repair:
+#                 state = 'repair'
+#             if 
 			wd.check_present_situation('inspection', t, \
 										self.environment.can_work)
 			"""
