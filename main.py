@@ -35,8 +35,7 @@ def main():
 		windfarm_state.all_windfarm[i].there_is_ship = True
 		# 風車を点検中にする
 		windfarm_state.all_windfarm[i].need_inspection = True
-	ship_plan = Ship_plan(args.total_number_of_ships, environment, \
-						  windfarm_state)
+	ship_plan = Ship_plan(args.total_number_of_ships, environment)
 	after_windfarm = windfarm_state.all_windfarm
 
 	for t in range(args.total_step_by_three_hour):
