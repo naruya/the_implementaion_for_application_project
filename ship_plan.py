@@ -15,7 +15,7 @@ class Ship_plan():
 	def time_step(self, t):
 		for ship in self.all_ships:
 			self.ship_should_leave_current_windfarm(ship, t)
-			self.calc_driving_cost()
+		self.calc_driving_cost()
 
     # 毎時間, 沖合に出ている船の数分の運転費を計算する
 	def calc_driving_cost(self):
