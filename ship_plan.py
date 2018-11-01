@@ -60,7 +60,4 @@ class Ship_plan():
 	# environment.day = 1ならば昼, 0ならば夜
 	# 夜ならばTrueが返る.
 	def check_night(self, t):
-		if self.environment.day[t] == 0:
-			return True
-		else:
-			return False
+		return self.environment.day[t] == 0
