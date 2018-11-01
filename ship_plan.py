@@ -13,8 +13,8 @@ class Ship_plan():
 		self.driving_cost_per_three_hour = 125000
 
 	def time_step(self, t):
-		for i in range(len(self.all_ships)):
-			self.ship_should_leave_current_windfarm(i, t)
+		for ship in self.all_ships:
+			self.ship_should_leave_current_windfarm(ship, t)
 			self.calc_driving_cost()
 
     # 毎時間, 沖合に出ている船の数分の運転費を計算する
@@ -29,13 +29,12 @@ class Ship_plan():
 		self.total_driving_cost += number_of_driving_ships * \
 									self.driving_cost_per_three_hour
 
-	def ship_should_leave_current_windfarm(self, ship_num, t):
-		this_ship_target_windfarm = self.all_ships[ship_num].target_windfarm
+	def ship_should_leave_current_windfarm(self, ship, t):
+		this_ship_target_windfarm = ship.target_windfarm
 		# 担当する風車の点検が終わったら
 		if not self.windfarm_state.all_windfarm[this_ship_target_windfarm].need_inspection:
 			next_windfarm = self.select_next_windfarm()
-			self.all_ships[ship_num].target_windfarm = next_windfarm
-			self.windfarm_state.all_windfarm[next_windfarm].there_is_ship = True
+			self.ship.target_windfarm = next_windfarm
 
 		# 担当する風車の点検がまだ終わっていない
 		else:
@@ -53,6 +52,7 @@ class Ship_plan():
 		#if sum(self.windfarm.check_need_inspection_all()) >= 1:
 			#tmp = 
 		tmp = np.argmax(self.windfarm_state.time_from_last_inspection_all())
+        
 		self.windfarm_state.all_windfarm[tmp].there_is_ship = True
 		self.windfarm_state.all_windfarm[tmp].time_from_last_inspection = 0
 		return tmp
