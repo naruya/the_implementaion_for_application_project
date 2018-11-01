@@ -2,6 +2,7 @@ import argparse
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
+from tqdm import tqdm
 
 from environment_data import Environment
 from windfarm_state import Windfarm_state
@@ -38,9 +39,7 @@ def main():
 	ship_plan = Ship_plan(args.total_number_of_ships, environment)
 	after_windfarm = windfarm_state.all_windfarm
 
-	for t in range(args.total_step_by_three_hour):
-		if t%1000 == 0:
-			print("t = {}".format(t))
+	for t in tqdm(range(args.total_step_by_three_hour)):
 		windfarm_state.time_step(t, after_windfarm)
 		after_windfarm = ship_plan.time_step(t, windfarm_state)
 		plot_array[:, t] = [wf.generating_power for wf in \
