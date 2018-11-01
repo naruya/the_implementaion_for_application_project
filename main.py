@@ -36,12 +36,11 @@ def main():
 		windfarm_state.all_windfarm[i].there_is_ship = True
 		# 風車を点検中にする
 		windfarm_state.all_windfarm[i].need_inspection = True
-	ship_plan = Ship_plan(args.total_number_of_ships, environment)
-	after_windfarm = windfarm_state.all_windfarm
+	ship_plan = Ship_plan(args.total_number_of_ships, environment, windfarm_state)
 
 	for t in tqdm(range(args.total_step_by_three_hour)):
-		windfarm_state.time_step(t, after_windfarm)
-		after_windfarm = ship_plan.time_step(t, windfarm_state)
+		windfarm_state.time_step(t)
+		ship_plan.time_step(t)
 		plot_array[:, t] = [wf.generating_power for wf in \
 							windfarm_state.all_windfarm]
 		"""
@@ -51,7 +50,7 @@ def main():
 		#print([wi.time_from_last_inspection for wi in after_windfarm])
 
 		count_need_inspection, count_need_repair = \
-			windfarm_state.total_not_driving_windfarm(after_windfarm)
+			windfarm_state.total_not_driving_windfarm(windfarm_state.all_windfarm)
 		need_inspection_list.append(count_need_inspection)
 		need_repair_list.append(count_need_repair)
 		total_generated_power.append(windfarm_state.total_calc_generated_kwh())
@@ -70,6 +69,10 @@ def main():
 	plt.figure()
 	plt.imshow(plot_array[:, 1000:2000])
 	plt.savefig("2.png")
+	plt.show()
+	plt.figure()
+	plt.imshow(plot_array[:, -1000:])
+	plt.savefig("3.png")
 	plt.show()
 
 

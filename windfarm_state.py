@@ -48,8 +48,7 @@ class Windfarm_state():
 	def total_calc_generated_kwh(self):
 		return sum([wf.generated_power for wf in self.all_windfarm]) * 36
 
-	def time_step(self, t, windfarm):
-		self.all_windfarm = windfarm
+	def time_step(self, t):
 		for wd in self.all_windfarm:
 #             if need_repair:
 #                 state = 'repair'
