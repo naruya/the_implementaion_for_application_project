@@ -39,8 +39,12 @@ def main():
 	ship_plan = Ship_plan(args.total_number_of_ships, environment, windfarm_state)
 
 	for t in tqdm(range(args.total_step_by_three_hour)):
-		windfarm_state.time_step(t)
+        
+		# ship_planは、windfarm_state.time_from_last_inspection_allを見て、
+		# need_inspectionに関係なく勝手に次の風車を決める。
+		# ship_planが行動した後、windfarmは受動的に自身の状態を評価
 		ship_plan.time_step(t)
+		windfarm_state.time_step(t)
 		plot_array[:, t] = [wf.generating_power for wf in \
 							windfarm_state.all_windfarm]
 		"""
@@ -55,12 +59,12 @@ def main():
 		need_repair_list.append(count_need_repair)
 		total_generated_power.append(windfarm_state.total_calc_generated_kwh())
 
-	print("total_calc_generated_kwh", windfarm_state.total_calc_generated_kwh())
-	print("total_driving_cost", ship_plan.total_driving_cost)
-	print("repayment cost", 400000000 * args.total_number_of_ships)
-	print("total_profit", windfarm_state.total_calc_generated_kwh() -
+	print("total_calc_generated_kwh: {:,}".format(windfarm_state.total_calc_generated_kwh()))
+	print("total_driving_cost: {:,}".format(ship_plan.total_driving_cost))
+	print("repayment cost: {:,}".format(400000000 * args.total_number_of_ships))
+	print("total_profit: {:,}".format(windfarm_state.total_calc_generated_kwh() -
 						  ship_plan.total_driving_cost - 400000000 *
-						  args.total_number_of_ships)
+						  args.total_number_of_ships))
 
 	plt.figure()
 	plt.imshow(plot_array[:, 0:1 * 1000])
