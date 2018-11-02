@@ -21,42 +21,29 @@ def main():
 	args = arg_parse()
 	print("read environment ...")
 	environment = Environment()
-
+    
 	print("construct windfarm_state ...")
 	windfarm_state = Windfarm_state(environment)
+    
+	print("construct ship_plan ...")
+	ship_plan = Ship_plan(args.total_number_of_ships, environment, windfarm_state)
+    
 	plot_array = np.zeros([200, \
 						   args.total_step_by_three_hour])
+    
 	need_inspection_list = []
 	need_repair_list = []
 	total_generated_power = []
 
-	# 初期状態は, 0 ~ total_nubmer_of_shipsの風車が点検されている状態
-	for i in range(args.total_number_of_ships):
-		# 風車に船をセット
-		windfarm_state.all_windfarm[i].there_is_ship = True
-		# 風車を点検中にする
-		windfarm_state.all_windfarm[i].need_inspection = True
-	ship_plan = Ship_plan(args.total_number_of_ships, environment, windfarm_state)
-
 	for t in tqdm(range(args.total_step_by_three_hour)):
         
-		# ship_planは、windfarm_state.time_from_last_inspection_allを見て、
-		# need_inspectionに関係なく勝手に次の風車を決める。
-		# ship_planが行動した後、windfarmは受動的に自身の状態を評価
 		ship_plan.time_step(t)
 		windfarm_state.time_step(t)
 		plot_array[:, t] = [wf.generating_power for wf in \
 							windfarm_state.all_windfarm]
-		"""
-		print([s.target_windfarm for s in ship_plan.all_ships], \
-				[s.stay_harbor for s in ship_plan.all_ships])
-		"""
-		#print([wi.time_from_last_inspection for wi in after_windfarm])
 
-		count_need_inspection, count_need_repair = \
-			windfarm_state.total_not_driving_windfarm(windfarm_state.all_windfarm)
-		need_inspection_list.append(count_need_inspection)
-		need_repair_list.append(count_need_repair)
+		need_inspection_list.append(sum(windfarm_state.check_need_inspection_all()))
+		need_repair_list.append(sum(windfarm_state.check_need_repair_all()))
 		total_generated_power.append(windfarm_state.total_calc_generated_kwh())
 
 	print("total_calc_generated_kwh: {:,}".format(windfarm_state.total_calc_generated_kwh()))

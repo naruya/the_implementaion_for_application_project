@@ -1,6 +1,5 @@
 import numpy as np
 
-
 class Windfarm():
 	def __init__(self, k, wind_state):
 		self.k = k
@@ -14,23 +13,16 @@ class Windfarm():
 
 		self.generated_power = 0
 		self.generating_power = 0 # plotに使う
-		self.is_running = True
-
 		self.there_is_ship = False
 
 	# kWh
 	def generate_power(self, t):
+		self.generating_power = 0
 		if self.need_inspection == False and self.need_repair == False:
 			if self.wind_state[t] == 1:
-				# 1.9MWh = 1900kWh
-				self.generating_power = 6 * 1900
+				self.generating_power = 6 * 1900 # 1.9MWh = 1900kWh
 			elif self.wind_state[t] == 2 | self.wind_state[t] == 3:
-				# 5.0MWh = 5000kWh
-				self.generating_power = 6 * 5000
-			else:
-				self.generating_power = 0
-		else:
-			self.generating_power = 0
+				self.generating_power = 6 * 5000 # 5.0MWh = 5000kWh
 		self.generated_power += self.generating_power
 
 	def broken_occasionally(self):
@@ -66,48 +58,10 @@ class Windfarm():
 				self.progress_repair_time = 0
 				self.there_is_ship = False
                 
-# 	def check_there_is_ship(self, state):
-# 		if self.there_is_ship:
-# 			if state == 'inspection':
-# 				self.need_inspection = True
-# 			else:
-# 				self.need_repair = True
-
+	# 各タイムステップで呼ばれる関数
 	def check_present_situation(self, t, tenken):
 		# 点検が必要になったり修理が必要になったりしてないか
 		self.broken_occasionally()
 		self.check_need_inspection()
 		self.make_progress(t, tenken)
 		self.generate_power(t)
-
-
-# 		if state == 'repair':
-# 			self.check_there_is_ship(state)
-# 			if self.need_repair:
-# 				if self.there_is_ship:
-# 					self.progress_repair_time += self.there_is_ship * \
-# 													 tenken[t] * 3
-# 					if self.progress_repair_time == 120:
-# 						self.need_repair = False
-# 						self.progress_repair_time = 0
-# 						self.there_is_ship = False
-# 		elif state == 'inspection':
-# 			self.check_there_is_ship(state)
-# 			if self.need_inspection:
-# 				if self.there_is_ship:
-# 					self.progress_inspection_time += self.there_is_ship * \
-# 													 tenken[t] * 3
-# 					if self.progress_inspection_time == 36:
-# 						self.need_inspection = False
-# 						self.time_from_last_inspection = 0
-# 						self.progress_inspection_time = 0
-# 						self.there_is_ship = False
-# 				self.time_from_last_inspection += 3
-
-
-# 	# 使われていない
-# 	def return_check_present_situation(self, state):
-# 		if state == "inspection":
-# 			return (self.need_inspection, self.progress_inspection_time)
-# 		elif state == 'repair':
-# 			return (self.need_repair, self.progress_repair_time)

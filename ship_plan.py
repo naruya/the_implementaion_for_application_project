@@ -5,8 +5,7 @@ from ships import Ships
 class Ship_plan():
 	def __init__(self, total_number_of_ships, environment, windfarm_state):
 		self.total_number_of_ships = total_number_of_ships
-		# 点検船
-		self.all_ships = [Ships(s) for s in range(total_number_of_ships)]
+		self.all_ships = [Ships() for s in range(total_number_of_ships)]
 		self.environment = environment
 		self.windfarm_state = windfarm_state
 		self.total_driving_cost = 0
@@ -21,21 +20,18 @@ class Ship_plan():
 
     # 毎時間, 沖合に出ている船の数分の運転費を計算する
 	def calc_driving_cost(self):
-		# 港に残っている船の数
-		number_of_ships_in_harbor = sum([sh.stay_harbor for sh in \
-										 self.all_ships])
 		# 港に残っていない船の数
-		number_of_driving_ships = self.total_number_of_ships - \
-									number_of_ships_in_harbor
+		number_of_driving_ships = sum([not sh.stay_harbor for sh in self.all_ships])
 		# 港に残っていない船の数 × 1stepあたりの運転費
 		self.total_driving_cost += number_of_driving_ships * \
 									self.driving_cost_per_three_hour
 
 	def ship_should_leave_current_windfarm(self, ship, t):
-		# 担当する風車の点検が終わったら
-		# TODO 修理が終わったら
+		# 担当する風車の点検or修理が終わったらorニート
 		# TODO 点検中に故障してた場合
-		if ship.task == None or (ship.task=='inspection' and not self.windfarm_state.all_windfarm[ship.target_windfarm].need_inspection) or (ship.task=='repair' and not self.windfarm_state.all_windfarm[ship.target_windfarm].need_repair):
+		if ship.task == None or \
+		(ship.task=='inspection' and not self.windfarm_state.all_windfarm[ship.target_windfarm].need_inspection) or \
+		(ship.task=='repair' and not self.windfarm_state.all_windfarm[ship.target_windfarm].need_repair):
 			next_windfarm, task = self.select_next_windfarm()
 			ship.target_windfarm = next_windfarm
 			ship.task = task
@@ -52,14 +48,6 @@ class Ship_plan():
 			ship.stay_harbor = True
 
 	def select_next_windfarm(self):
-		# 点検が必要な風車があればそちらに回る.
-		# return windfarm_id, task=='inspection', 'repair', None
-
-		# TODO
-		# 何かしらの方法で次のwfを決定する
-		# ここでは、need_hoge にかかわらず, すべての船を点検にまわしている。
-		# time_from_last_inspectionをもとに点検するwfを決定し、
-		# 選ばれた風車は強制的に need_inspection を Trueだったことにする。
 
 # 		戦略1: すべての船が常に点検をする。
 # 		tmp = np.argmax(self.windfarm_state.time_from_last_inspection_all())
@@ -73,11 +61,10 @@ class Ship_plan():
 		# 戦略2: 戦略1をベースに、
 		# 壊れた発電機があるときにはp=1の確率で修理に向かうが
 		# その他は常に点検に当てる。
-		# 論理積を使うため、numpy形式にしている
-		# TODO 同じ発電機に向かってはいないか確認
 		need_repair_all = np.array(self.windfarm_state.check_need_repair_all())
 		there_is_ship_all = np.array(self.windfarm_state.check_there_is_ship_all())
 		time_from_last_inspection_all = np.array(self.windfarm_state.check_time_from_last_inspection_all())
+        
 		if sum(need_repair_all & ~there_is_ship_all) < 1:
 			# 船がいるところは time_from_last_inspection を0として扱う
 			tmp = np.argmax(time_from_last_inspection_all * ~there_is_ship_all) # ~で¬の意
