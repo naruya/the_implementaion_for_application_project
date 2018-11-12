@@ -83,8 +83,9 @@ class Ship_plan():
 
 		# 戦略3: 
 		# p を「壊れてる修理船の数」と「sum(time_from_last_inspection_all)」に応じて決める
-		w_repair = sum(need_repair_all & ~there_is_ship_all)/5 # max5かなっていう # どれだけ故障を許容するかが鍵。
-		w_inspection = np.mean(time_from_last_inspection_all)/2160 # max2160*0.8かなっていう
+		# それっぽい値で割って、正規化している
+		w_repair = sum(need_repair_all & ~there_is_ship_all)/5 # max5かなっていう # どれだけ故障を許容するかが鍵？
+		w_inspection = np.mean(time_from_last_inspection_all)/2160 # max2160かなっていう
 		p_repair = w_repair / (w_repair + w_inspection + 1e-12)
 		print("{:.2%}, {:.2%}, {:.2%}".format(w_repair, w_inspection, p_repair))
 		# 修理するゼ
