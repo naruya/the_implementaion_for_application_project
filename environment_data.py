@@ -44,8 +44,3 @@ class Environment():
 		nice_weather = np.where(hist >= 3, 0, 1)
 		return nice_weather & self.day
 
-	def return_can_work_array(self):
-		return self.can_work
-
-	def return_day(self):
-		return self.day
