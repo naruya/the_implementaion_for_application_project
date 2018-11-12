@@ -58,27 +58,52 @@ class Ship_plan():
 # 		task = 'inspection'
 # 		return tmp, task
 
-		# 戦略2: 戦略1をベースに、
-		# 壊れた発電機があるときにはp=1の確率で修理に向かうが
-		# その他は常に点検に当てる。
 		need_repair_all = np.array(self.windfarm_state.check_need_repair_all())
 		there_is_ship_all = np.array(self.windfarm_state.check_there_is_ship_all())
 		time_from_last_inspection_all = np.array(self.windfarm_state.check_time_from_last_inspection_all())
-        
-		if sum(need_repair_all & ~there_is_ship_all) < 1:
+
+		# 戦略2: 戦略1をベースに、
+		# 壊れた発電機があるときにはp=1の確率で修理に向かうが
+		# その他は常に点検に当てる。        
+		# 壊れていてかつ修理船がまだ来ていない発電機が全くない場合
+# 		if sum(need_repair_all & ~there_is_ship_all) < 1:
+# 			# 船がいるところは time_from_last_inspection を0として扱う
+# 			tmp = np.argmax(time_from_last_inspection_all * ~there_is_ship_all) # ~で¬の意
+# 			next_windfarm = self.windfarm_state.all_windfarm[tmp]
+# 			next_windfarm.there_is_ship = True
+# 			next_windfarm.need_inspection = True # 強制的にneed_inspectionだったことにする
+# 			task = 'inspection'
+# 		# 壊れていてかつ修理船がまだ来ていない発電機がある場合
+# 		else:
+# 			tmp = np.argmax(need_repair_all & ~there_is_ship_all) # ~で¬の意
+# 			next_windfarm = self.windfarm_state.all_windfarm[tmp]
+# 			next_windfarm.there_is_ship = True
+# 			task = 'repair'
+# 			print("repair, windfarm.k=={}".format(tmp))
+
+		# 戦略3: 
+		# p を「壊れてる修理船の数」と「sum(time_from_last_inspection_all)」に応じて決める
+		w_repair = sum(need_repair_all & ~there_is_ship_all)/5 # max5かなっていう # どれだけ故障を許容するかが鍵。
+		w_inspection = np.mean(time_from_last_inspection_all)/2160 # max2160*0.8かなっていう
+		p_repair = w_repair / (w_repair + w_inspection + 1e-12)
+		print("{:.2%}, {:.2%}, {:.2%}".format(w_repair, w_inspection, p_repair))
+		# 修理するゼ
+		if np.random.rand() < p_repair:
+			print("repair")
+			tmp = np.argmax(need_repair_all & ~there_is_ship_all) # ~で¬の意
+			next_windfarm = self.windfarm_state.all_windfarm[tmp]
+			next_windfarm.there_is_ship = True
+			task = 'repair'
+		# 点検するゼ
+		else:
+			print("inspection")
 			# 船がいるところは time_from_last_inspection を0として扱う
 			tmp = np.argmax(time_from_last_inspection_all * ~there_is_ship_all) # ~で¬の意
 			next_windfarm = self.windfarm_state.all_windfarm[tmp]
 			next_windfarm.there_is_ship = True
 			next_windfarm.need_inspection = True # 強制的にneed_inspectionだったことにする
 			task = 'inspection'
-		else:
-			tmp = np.argmax(need_repair_all & ~there_is_ship_all) # ~で¬の意
-			next_windfarm = self.windfarm_state.all_windfarm[tmp]
-			next_windfarm.there_is_ship = True
-			task = 'repair'
-			print("repair, windfarm.k=={}".format(tmp))
-
+            
 		return tmp, task
 
 	# environment.day = 1ならば昼, 0ならば夜
