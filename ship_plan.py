@@ -82,7 +82,7 @@ class Ship_plan():
 # 			print("repair, windfarm.k=={}".format(tmp))
 
 		# 戦略3: 
-		# p を「壊れてる修理船の数」と「sum(time_from_last_inspection_all)」に応じて決める
+		# p を「壊れてる発電機の数」と「sum(time_from_last_inspection_all)」に応じて決める
 		# それっぽい値で割って、正規化している
 		w_repair = sum(need_repair_all & ~there_is_ship_all)/5 # max5かなっていう # どれだけ故障を許容するかが鍵？
 		w_inspection = np.mean(time_from_last_inspection_all)/2160 # max2160かなっていう
