@@ -2,12 +2,22 @@ import pandas as pd
 import numpy as np
 
 class Environment():
-	def __init__(self, csv_path="data/fukushima_wind.csv"):
+	def __init__(self, wind_power_rank=None, can_work=None, csv_path="data/fukushima_wind.csv"):
+		
 		self.wind_data = self.read_wind_data_from_csv(csv_path)
-		self.wind_power_rank = self.calc_wind_power_rank(self.wind_data)
+		
+		if wind_power_rank == None:
+			self.wind_power_rank = self.calc_wind_power_rank(self.wind_data)
+		else:
+			self.wind_power_rank = wind_power_rank
+		
 		self.day = np.array([1, 1, 1, 1, 0, 0, 0, 0] * 365 * 20)
-		self.can_work = self.calc_time_to_work()
-
+		
+		if can_work == None:
+			self.can_work = self.calc_time_to_work()
+		else:
+			self.can_work = can_work
+        
 	def read_wind_data_from_csv(self, csv_path):
 		df = pd.read_csv(csv_path)[2:]
 		wind_over_ten_meter = np.power(np.sum(np.power(df, 2), 1), 0.5)
