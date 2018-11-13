@@ -31,7 +31,7 @@ class Windfarm():
 									            self.prob_occur_broken])
 			if broken == 1:
 				self.need_repair = True
-				print("broken, windfarm.k=={}".format(self.k))
+# 				print("broken, windfarm.k=={}".format(self.k))
 
 	def check_need_inspection(self):
 		if self.time_from_last_inspection == 4320:

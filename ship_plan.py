@@ -87,17 +87,17 @@ class Ship_plan():
 		w_repair = sum(need_repair_all & ~there_is_ship_all)/5 # max5かなっていう # どれだけ故障を許容するかが鍵？
 		w_inspection = np.mean(time_from_last_inspection_all)/2160 # max2160かなっていう
 		p_repair = w_repair / (w_repair + w_inspection + 1e-12)
-		print("{:.2%}, {:.2%}, {:.2%}".format(w_repair, w_inspection, p_repair))
+# 		print("{:.2%}, {:.2%}, {:.2%}".format(w_repair, w_inspection, p_repair))
 		# 修理するゼ
 		if np.random.rand() < p_repair:
-			print("repair")
+# 			print("repair")
 			tmp = np.argmax(need_repair_all & ~there_is_ship_all) # ~で¬の意
 			next_windfarm = self.windfarm_state.all_windfarm[tmp]
 			next_windfarm.there_is_ship = True
 			task = 'repair'
 		# 点検するゼ
 		else:
-			print("inspection")
+# 			print("inspection")
 			# 船がいるところは time_from_last_inspection を0として扱う
 			tmp = np.argmax(time_from_last_inspection_all * ~there_is_ship_all) # ~で¬の意
 			next_windfarm = self.windfarm_state.all_windfarm[tmp]
