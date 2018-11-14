@@ -11,7 +11,7 @@ from ship_plan import Ship_plan
 def arg_parse():
 	parser = argparse.ArgumentParser()
 	parser.add_argument('-n', '--total_number_of_ships',
-						type=int, default=4)
+						type=int, default=6)
 	parser.add_argument('-t', '--total_step_by_three_hour',
 						type=int, default=int(20*365*(24/3)))
 	args = parser.parse_args()
@@ -19,8 +19,13 @@ def arg_parse():
 
 def main():
 	args = arg_parse()
+
+	wind_hist = np.load("data/wind_hist.npy")
+	can_work = np.load("data/can_work.npy")
+	broken_program = np.load("data/broken_program.npy")
+
 	print("read environment ...")
-	environment = Environment()
+	environment = Environment(data=(wind_hist, can_work, broken_program))
     
 	print("construct windfarm_state ...")
 	windfarm_state = Windfarm_state(environment)
