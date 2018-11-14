@@ -35,20 +35,13 @@ class Ship_plan():
 			next_windfarm, task = self.select_next_windfarm()
 			ship.target_windfarm = next_windfarm
 			ship.task = task
-
-		# 担当する風車の点検がまだ終わっていない
-# 		else: # TODO elseじゃなくね？
-			# TODO next_windfarmが決まった後の昼夜判定
-			# TODO 午前3時の時点で出航してほしい。
-			# まだ元の風車の点検が終わっていない
-			# 夜かどうか
-		if not ship.task == None:
-			ship.stay_harbor = self.check_night(t)
-		else:
+		if ship.task == None: # ニートなら有無を言わず一旦戻ってこい
 			ship.stay_harbor = True
+		else: # ニートじゃないなら、夜なら一旦戻ってこい。昼なら出動というか帰ってくるな！
+# 			今昼or次の瞬間昼じゃない時、港に帰ってこい
+			ship.stay_harbor = not ((self.environment.day[t] == 1) or (self.environment.day[t+1] == 1))
 
 	def select_next_windfarm(self):
-
 # 		戦略1: すべての船が常に点検をする。
 # 		tmp = np.argmax(self.windfarm_state.time_from_last_inspection_all())
 # 		next_windfarm = self.windfarm_state.all_windfarm[tmp]
