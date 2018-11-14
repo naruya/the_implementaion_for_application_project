@@ -39,7 +39,10 @@ class Ship_plan():
 			ship.stay_harbor = True
 		else: # ニートじゃないなら、夜なら一旦戻ってこい。昼なら出動というか帰ってくるな！
 # 			今昼or次の瞬間昼じゃない時、港に帰ってこい
-			ship.stay_harbor = not ((self.environment.day[t] == 1) or (self.environment.day[t+1] == 1))
+			if t == 58399:
+				ship.stay_harbor = True
+			else:
+				ship.stay_harbor = not ((self.environment.day[t] == 1) or (self.environment.day[t+1] == 1))
 
 	def select_next_windfarm(self):
 # 		戦略1: すべての船が常に点検をする。
