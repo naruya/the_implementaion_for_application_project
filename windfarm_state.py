@@ -5,7 +5,8 @@ from windfarm import Windfarm
 class Windfarm_state():
 	def __init__(self, environment, total_windfarm_num=200):
 		self.environment = environment
-		self.all_windfarm = [Windfarm(k, environment.wind_hist, environment.broken_program[k]) \
+# 		self.all_windfarm = [Windfarm(k, environment.wind_hist, environment.broken_program[k]) \
+		self.all_windfarm = [Windfarm(k, environment.wind_hist) \
 							for k in range(total_windfarm_num)]
         
 	# ship_planで参照される。
